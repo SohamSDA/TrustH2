@@ -1,0 +1,62 @@
+name: 🌱 TrustH2 CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  smart-contracts:
+    name: 🔧 Smart Contract Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📦 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🚀 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: trusth2/package-lock.json
+        
+    - name: 📥 Install dependencies
+      working-directory: ./trusth2
+      run: npm ci
+      
+    - name: 🔨 Compile contracts
+      working-directory: ./trusth2
+      run: npm run compile
+      
+    - name: 🧪 Run tests
+      working-directory: ./trusth2
+      run: npm run test
+
+  frontend:
+    name: 🎨 Frontend Build
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📦 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🚀 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: trusth2-frontend/package-lock.json
+        
+    - name: 📥 Install dependencies
+      working-directory: ./trusth2-frontend
+      run: npm ci
+      
+    - name: 🔍 Lint code
+      working-directory: ./trusth2-frontend
+      run: npm run lint
+      
+    - name: 🏗️ Build application
+      working-directory: ./trusth2-frontend
+      run: npm run build
