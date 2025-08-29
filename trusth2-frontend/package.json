@@ -1,0 +1,32 @@
+{
+  "name": "trusth2-frontend",
+  "version": "1.0.0",
+  "description": "TrustH2 Green Hydrogen Credits Frontend Application",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build --turbopack",
+    "start": "next start",
+    "lint": "eslint",
+    "preview": "npm run build && npm run start"
+  },
+  "keywords": ["nextjs", "web3", "green-hydrogen", "defi", "blockchain", "carbon-credits"],
+  "author": "SohamSDA",
+  "license": "MIT",
+  "dependencies": {
+    "@rainbow-me/rainbowkit": "^2.2.8",
+    "@tanstack/react-query": "^5.85.5",
+    "next": "15.5.2",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "viem": "^2.36.0",
+    "wagmi": "^2.16.9"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.2",
+    "tailwindcss": "^4"
+  }
+}
