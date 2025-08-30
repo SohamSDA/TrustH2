@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useReadContract, useBlockNumber } from "wagmi";
+import { useReadContract } from "wagmi";
 import { ABI, CONTRACT } from "../../lib/abi.js";
 import { useRole } from "../../hooks/useRole.js";
 import { formatUnits } from "viem";
@@ -9,23 +9,22 @@ export function CreditsMarketplace() {
   const { role } = useRole();
   const [holders, setHolders] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false);
   const publicClient = usePublicClient();
 
-  // Listen for new blocks to refresh data
-  const { data: blockNumber } = useBlockNumber({ watch: true });
-
-  // Sample addresses for demonstration - in a real app, you'd track this from events
+  // Real addresses to check for credits - using your wallet address
   const sampleAddresses = [
-    "0x1234567890123456789012345678901234567890",
-    "0x2345678901234567890123456789012345678901",
-    "0x3456789012345678901234567890123456789012",
+    "0x930b177D5cBfE4C8575485570164D880B739DEf8", // Your wallet address
+    "0x1234567890123456789012345678901234567890", // Mock address 1
+    "0x2345678901234567890123456789012345678901", // Mock address 2
   ];
 
   useEffect(() => {
-    if (CONTRACT && publicClient) {
+    // Only load data once when component mounts and has required dependencies
+    if (CONTRACT && publicClient && !dataLoaded) {
       fetchHolders();
     }
-  }, [blockNumber, publicClient]);
+  }, [publicClient, dataLoaded]);
 
   const fetchHolders = async () => {
     if (!publicClient) return;
@@ -37,6 +36,7 @@ export function CreditsMarketplace() {
       // In a real implementation, you'd get this from Transfer events
       for (const address of sampleAddresses) {
         try {
+          console.log(`Checking balance for address: ${address}`);
           const balance = await publicClient.readContract({
             address: CONTRACT,
             abi: ABI,
@@ -44,19 +44,66 @@ export function CreditsMarketplace() {
             args: [address],
           });
 
+          console.log(`Balance for ${address}:`, balance?.toString());
+
           if (balance && balance > 0n) {
             holdersData.push({
               address,
               balance: formatUnits(balance, 18),
-              price: (Math.random() * 50 + 10).toFixed(2), // Mock price
+              price:
+                address === "0x930b177D5cBfE4C8575485570164D880B739DEf8"
+                  ? (25 + Math.random() * 10).toFixed(2) // Your credits at market rate
+                  : (Math.random() * 50 + 10).toFixed(2), // Mock price for others
+            });
+          } else if (address === "0x930b177D5cBfE4C8575485570164D880B739DEf8") {
+            // Always show your address even with 0 balance for debugging
+            holdersData.push({
+              address,
+              balance: "0",
+              price: "25.00",
             });
           }
         } catch (error) {
-          // Address doesn't have tokens or error occurred
+          console.error(`Error checking balance for ${address}:`, error);
+          // For your address, show it even if there's an error
+          if (address === "0x930b177D5cBfE4C8575485570164D880B739DEf8") {
+            holdersData.push({
+              address,
+              balance: "Error loading",
+              price: "25.00",
+            });
+          }
         }
       }
 
       setHolders(holdersData);
+
+      // Add some mock sellers for demonstration if no real holders found
+      if (holdersData.length === 0) {
+        const mockHolders = [
+          {
+            address: "0xABC1234567890123456789012345678901234567",
+            balance: "1,250",
+            price: "28.50",
+            mockSeller: true,
+          },
+          {
+            address: "0xDEF7890123456789012345678901234567890123",
+            balance: "750",
+            price: "31.75",
+            mockSeller: true,
+          },
+          {
+            address: "0x930b177D5cBfE4C8575485570164D880B739DEf8",
+            balance: "Pending approval...",
+            price: "25.00",
+            isPending: true,
+          },
+        ];
+        setHolders(mockHolders);
+      }
+
+      setDataLoaded(true); // Mark data as loaded to prevent further fetches
     } catch (error) {
       console.error("Error fetching holders:", error);
     } finally {
@@ -74,9 +121,21 @@ export function CreditsMarketplace() {
         <h3 className="text-lg font-semibold text-white">
           Credits Marketplace
         </h3>
-        <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded-full font-medium">
-          {holders.length} holders
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded-full font-medium">
+            {holders.length} holders
+          </span>
+          <button
+            onClick={() => {
+              setDataLoaded(false);
+              setHolders([]);
+            }}
+            className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded-full font-medium hover:bg-blue-500/30 transition-colors duration-200 cursor-pointer"
+            title="Refresh marketplace data"
+          >
+            🔄 Refresh
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -95,10 +154,26 @@ export function CreditsMarketplace() {
             >
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm font-semibold text-white">
-                  Holder #{index + 1}
+                  {holder.mockSeller
+                    ? `Seller #${index + 1}`
+                    : holder.isPending
+                    ? "Your Credits"
+                    : `Holder #${index + 1}`}
                 </span>
-                <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded-full font-medium">
-                  Available
+                <span
+                  className={`px-2 py-1 text-xs rounded-full font-medium ${
+                    holder.isPending
+                      ? "bg-yellow-500/20 text-yellow-300"
+                      : holder.mockSeller
+                      ? "bg-blue-500/20 text-blue-300"
+                      : "bg-green-500/20 text-green-300"
+                  }`}
+                >
+                  {holder.isPending
+                    ? "Pending"
+                    : holder.mockSeller
+                    ? "Demo"
+                    : "Available"}
                 </span>
               </div>
 
@@ -112,8 +187,18 @@ export function CreditsMarketplace() {
 
                 <div className="flex justify-between">
                   <span className="text-neutral-400">Available:</span>
-                  <span className="text-white font-semibold">
-                    {parseFloat(holder.balance).toLocaleString()} credits
+                  <span
+                    className={`font-semibold ${
+                      holder.isPending ? "text-yellow-300" : "text-white"
+                    }`}
+                  >
+                    {holder.balance === "0"
+                      ? "0 credits"
+                      : typeof holder.balance === "string" &&
+                        !holder.balance.includes(",") &&
+                        !isNaN(parseFloat(holder.balance))
+                      ? `${parseFloat(holder.balance).toLocaleString()} credits`
+                      : `${holder.balance} credits`}
                   </span>
                 </div>
 
@@ -126,18 +211,35 @@ export function CreditsMarketplace() {
               </div>
 
               <div className="grid grid-cols-2 gap-2 mt-4">
-                <button
-                  className="bg-white text-black px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-200 transition-colors duration-200"
-                  disabled
-                >
-                  Contact Seller
-                </button>
-                <button
-                  className="bg-green-500/20 text-green-300 border border-green-500/30 px-3 py-2 rounded-lg text-sm font-medium hover:bg-green-500/30 transition-colors duration-200"
-                  disabled
-                >
-                  Quick Buy
-                </button>
+                {holder.isPending ? (
+                  <>
+                    <div className="col-span-2 text-center text-xs text-yellow-300 bg-yellow-500/10 border border-yellow-500/20 rounded-lg px-3 py-2">
+                      💡 Once approved, your credits will be available for
+                      trading
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      className="bg-white text-black px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-200 transition-colors duration-200 cursor-pointer"
+                      onClick={() =>
+                        alert(`Contact seller at ${holder.address}`)
+                      }
+                    >
+                      Contact Seller
+                    </button>
+                    <button
+                      className="bg-green-500/20 text-green-300 border border-green-500/30 px-3 py-2 rounded-lg text-sm font-medium hover:bg-green-500/30 transition-colors duration-200 cursor-pointer"
+                      onClick={() =>
+                        alert(
+                          `Quick buy from ${holder.address}: ${holder.balance} credits at $${holder.price}/credit`
+                        )
+                      }
+                    >
+                      Quick Buy
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           ))}

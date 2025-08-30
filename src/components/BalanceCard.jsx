@@ -1,4 +1,5 @@
 import { useAccount, useReadContract } from "wagmi";
+import { formatUnits } from "viem";
 import { ABI, CONTRACT } from "../lib/abi.js";
 
 export function BalanceCard() {
@@ -24,7 +25,7 @@ export function BalanceCard() {
         {isLoading ? (
           <div className="animate-pulse bg-white/10 rounded h-10 w-32"></div>
         ) : (
-          <span>{balance ? balance.toString() : "0"} H2 Credits</span>
+          <span>{balance ? formatUnits(balance, 18) : "0"} H2 Credits</span>
         )}
       </div>
 

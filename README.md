@@ -1,12 +1,55 @@
-# React + Vite
+# TrustH2 - Green Hydrogen Carbon Credits
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A blockchain platform for trading green hydrogen carbon credits with role-based access control.
 
-Currently, two official plugins are available:
+## What it does
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Producers** request minting of carbon credits for green hydrogen production
+- **Certifiers** verify and approve mint requests
+- **Buyers** purchase credits in the marketplace
+- **All users** can transfer and retire credits
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+**Frontend:**
+
+- React + Vite
+- Tailwind CSS
+- RainbowKit (Web3 wallet connection)
+- wagmi + viem (Ethereum interactions)
+
+**Backend:**
+
+- Solidity smart contracts
+- Hardhat development environment
+- Polygon Amoy testnet
+
+## Quick Start
+
+1. Install dependencies:
+
+```bash
+npm install
+cd trusth2 && npm install && cd ..
+```
+
+2. Deploy contract:
+
+```bash
+cd trusth2
+npm run deploy
+npm run setup-roles
+```
+
+3. Start frontend:
+
+```bash
+npm run dev
+```
+
+## Contract
+
+**Address:** `0x4A84Be8d54C1fF9abd01B54b2861318c046d93e4`  
+**Network:** Polygon Amoy Testnet
+
+Built for sustainable blockchain solutions 🌱
