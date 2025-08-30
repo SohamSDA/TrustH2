@@ -18,18 +18,26 @@ async function main() {
   console.log("👤 Setting up roles...");
   console.log("Available signers:", signers.length);
 
-  // Use the deployer as all roles for testing
+  // Set roles for the specified wallet address
   // Set roles: 1=PRODUCER, 2=CERTIFIER, 3=BUYER
+  const targetAddress = "0x930b177D5cBfE4C8575485570164D880B739DEf8";
   const deployerAddress = await deployer.getAddress();
 
+  // Set roles for the target wallet
+  await (await contract.setRole(targetAddress, 1)).wait(); // PRODUCER
+  console.log("  Producer role set for:", targetAddress);
+
+  await (await contract.setRole(targetAddress, 2)).wait(); // CERTIFIER
+  console.log("  Certifier role set for:", targetAddress);
+
+  await (await contract.setRole(targetAddress, 3)).wait(); // BUYER
+  console.log("  Buyer role set for:", targetAddress);
+
+  // Also set roles for deployer for testing
   await (await contract.setRole(deployerAddress, 1)).wait(); // PRODUCER
-  console.log("  Producer role set for:", deployerAddress);
-
   await (await contract.setRole(deployerAddress, 2)).wait(); // CERTIFIER
-  console.log("  Certifier role set for:", deployerAddress);
-
   await (await contract.setRole(deployerAddress, 3)).wait(); // BUYER
-  console.log("  Buyer role set for:", deployerAddress);
+  console.log("  All roles also set for deployer:", deployerAddress);
 
   console.log("\n🎉 Deployment complete!");
   console.log("📋 Contract Address:", contractAddress);

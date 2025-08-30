@@ -11,22 +11,34 @@ import "@rainbow-me/rainbowkit/styles.css";
 
 const config = getDefaultConfig({
   appName: "TrustH2",
-  projectId: import.meta.env.VITE_WC_ID || "fallback",
+  projectId: "your_project_id", // Using a static fallback
   chains: [polygonAmoy],
   transports: {
-    [polygonAmoy.id]: http(
-      import.meta.env.VITE_RPC || "https://rpc-amoy.polygon.technology/"
-    ),
+    [polygonAmoy.id]: http("https://rpc-amoy.polygon.technology/"),
   },
+  ssr: false, // Disable server-side rendering features
 });
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      staleTime: 1000 * 60, // 1 minute
+    },
+  },
+});
 
 export function Providers({ children }) {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider theme={darkTheme()}>{children}</RainbowKitProvider>
+        <RainbowKitProvider
+          theme={darkTheme()}
+          modalSize="compact"
+          showRecentTransactions={false}
+        >
+          {children}
+        </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );
