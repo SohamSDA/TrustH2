@@ -13,7 +13,14 @@
     "test": "hardhat test",
     "clean": "hardhat clean"
   },
-  "keywords": ["blockchain", "green-hydrogen", "carbon-credits", "polygon", "defi", "environmental"],
+  "keywords": [
+    "blockchain",
+    "green-hydrogen",
+    "carbon-credits",
+    "polygon",
+    "defi",
+    "environmental"
+  ],
   "author": "SohamSDA",
   "license": "MIT",
   "devDependencies": {
